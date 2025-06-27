@@ -4,8 +4,16 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
+from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
+
+# PostgreSQL 数据库 URI（替换下面信息）
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://youruser:yourpassword@localhost:5432/yourdb'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+
 
 # 加载训练好的模型
 model = joblib.load('house_price_model.pkl')
