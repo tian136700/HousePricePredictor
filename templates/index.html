@@ -1,56 +1,166 @@
 <!DOCTYPE html>
-<html>
+<html lang="zh">
 <head>
-    <title>房价预测系统</title>
+  <meta charset="UTF-8">
+  <title>房价预测系统</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f4f6f9;
+      padding: 40px;
+      margin: 0;
+    }
+
+    /* 顶部登录注册按钮 */
+    .top-buttons {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+    }
+
+    .top-buttons a {
+      margin-left: 15px;
+      text-decoration: none;
+      color: white;
+      background-color: #1e90ff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    .top-buttons a:hover {
+      background-color: #0f7ae5;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 60px;
+    }
+
+    form {
+      background-color: white;
+      max-width: 500px;
+      margin: 30px auto;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      color: #555;
+      font-weight: bold;
+    }
+
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0f7ae5;
+    }
+
+    #result, #price-trend-img {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
 </head>
 <body>
-    <h1>房价预测系统</h1>
-    <form id="predict-form">
-        <label>面积 (平方米):</label>
-        <input type="number" id="area" required><br><br>
 
-        <label>卧室数量:</label>
-        <input type="number" id="bedrooms" required><br><br>
+  <!-- 顶部 登录 / 注册 按钮 -->
+  <div class="top-buttons">
+    <a href="/login">登录</a>
+    <a href="/register">注册</a>
+  </div>
 
-        <label>城市:</label>
-        <select id="city" required>
-            <option value="Beijing">北京</option>
-            <option value="Shanghai">上海</option>
-            <option value="Guangzhou">广州</option>
-        </select><br><br>
+  <h1>房价预测系统</h1>
 
-        <button type="submit">预测房价</button>
-    </form>
+  <form id="predict-form">
+    <label for="province">省份:</label>
+    <select id="province" required>
+      <option value="">请选择省份</option>
+      <option value="北京">北京</option>
+      <option value="上海">上海</option>
+      <option value="广东">广东</option>
+    </select>
 
+    <label for="city">城市:</label>
+    <select id="city" required>
+      <option value="">请选择城市</option>
+    </select>
+
+    <label for="months">预测时间（单位：月）:</label>
+    <select id="months" required>
+      <option value="3">3 个月</option>
+      <option value="6" selected>6 个月（推荐）</option>
+      <option value="9">9 个月</option>
+      <option value="12">12 个月</option>
+    </select>
+
+    <button type="submit">预测房价</button>
+  </form>
+
+  <div id="result">
     <h2>预测结果：</h2>
-    <p id="result"></p>
+    <p id="price-output">请提交信息以查看预测价格</p>
+  </div>
 
+  <div id="price-trend-img">
     <h2>历史房价走势</h2>
-    <img id="price-trend-img" src="" alt="价格趋势图">
+    <img id="trend-chart" src="" alt="趋势图">
+  </div>
 
-    <script>
-        document.getElementById('predict-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const area = document.getElementById('area').value;
-            const bedrooms = document.getElementById('bedrooms').value;
-            const city = document.getElementById('city').value;
+  <script>
+    document.getElementById('predict-form').addEventListener('submit', async function(event) {
+      event.preventDefault();
 
-            const response = await fetch('/predict', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({area, bedrooms, city})
-            });
-            const data = await response.json();
-            document.getElementById('result').textContent = `预计房价为：${data.predicted_price} 元`;
-        });
+      const province = document.getElementById('province').value;
+      const city = document.getElementById('city').value;
+      const months = document.getElementById('months').value;
 
-        // 加载价格趋势图
-        async function loadTrend() {
-            const response = await fetch('/price_trend');
-            const data = await response.json();
-            document.getElementById('price-trend-img').src = data.plot_url;
-        }
-        loadTrend();
-    </script>
+      const response = await fetch('/predict', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ province, city, months })
+      });
+
+      const data = await response.json();
+      document.getElementById('price-output').textContent = `预计房价为：${data.predicted_price} 元`;
+    });
+
+    async function loadTrend() {
+      const response = await fetch('/price_trend');
+      const data = await response.json();
+      document.getElementById('trend-chart').src = data.plot_url;
+    }
+    loadTrend();
+  </script>
 </body>
 </html>

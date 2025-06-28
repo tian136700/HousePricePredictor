@@ -1,0 +1,6 @@
+pandas
+scikit-learn
+joblib
+matplotlib
+flask
+pymysql>=1.0
