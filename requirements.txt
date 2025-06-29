@@ -7,4 +7,5 @@ pymysql>=1.0
 flask_sqlalchemy
 sqlalchemy
 PyYAML
+redis
 
