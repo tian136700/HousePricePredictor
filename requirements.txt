@@ -4,3 +4,7 @@ joblib
 matplotlib
 flask
 pymysql>=1.0
+flask_sqlalchemy
+sqlalchemy
+PyYAML
+
