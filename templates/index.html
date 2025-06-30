@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>房价预测系统</title>
+
+
   <style>
     body {
       font-family: "Helvetica Neue", sans-serif;
@@ -104,12 +106,9 @@
 
   <form id="predict-form">
     <label for="province">省份:</label>
-    <select id="province" required>
-      <option value="">请选择省份</option>
-      <option value="北京">北京</option>
-      <option value="上海">上海</option>
-      <option value="广东">广东</option>
-    </select>
+      <select id="province" required>
+          <option value="">请选择省份</option>
+      </select>
 
     <label for="city">城市:</label>
     <select id="city" required>
@@ -136,31 +135,6 @@
     <h2>历史房价走势</h2>
     <img id="trend-chart" src="" alt="趋势图">
   </div>
-
-  <script>
-    document.getElementById('predict-form').addEventListener('submit', async function(event) {
-      event.preventDefault();
-
-      const province = document.getElementById('province').value;
-      const city = document.getElementById('city').value;
-      const months = document.getElementById('months').value;
-
-      const response = await fetch('/predict', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ province, city, months })
-      });
-
-      const data = await response.json();
-      document.getElementById('price-output').textContent = `预计房价为：${data.predicted_price} 元`;
-    });
-
-    async function loadTrend() {
-      const response = await fetch('/price_trend');
-      const data = await response.json();
-      document.getElementById('trend-chart').src = data.plot_url;
-    }
-    loadTrend();
-  </script>
+<script src="/static/js/main.js"></script>
 </body>
 </html>
