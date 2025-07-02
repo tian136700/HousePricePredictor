@@ -4,6 +4,8 @@ def save_sms_code_to_redis(phone, code, expire_sec=300):
     key = f"sms:{phone}"
     redis_client.set(key, code, ex=expire_sec)
 
+
+# 验证验证码
 def verify_sms_code_from_redis(phone, input_code):
     key = f"sms:{phone}"
     real_code = redis_client.get(key)

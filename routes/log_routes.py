@@ -11,12 +11,11 @@ def predict_click():
 
     data = request.get_json()
     ip = request.remote_addr
-    device_id = request.headers.get('User-Agent')
+    device_id = data.get('device_id')
     query_area = data.get('query_area')
-    user_id = data.get('user_id', None)
 
     # ✅ 调用控制器处理业务
-    log, click_count = record_click_log(ip, device_id, query_area, user_id)
+    log, click_count = record_click_log(ip, device_id, query_area)
     show_register = (click_count >= 4)
 
     return success_response(

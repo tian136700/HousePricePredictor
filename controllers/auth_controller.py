@@ -4,7 +4,7 @@ from utils.response import success_response, error_response
 from werkzeug.security import generate_password_hash,check_password_hash
 from datetime import datetime
 import random
-from utils.sms_cache_redis import save_sms_code_to_redis
+from utils.sms_cache_redis import save_sms_code_to_redis,verify_sms_code_from_redis
 from controllers.log_controller import bind_logs_to_user  # 确保你写了这个
 from flask import request
 def register_user(data):
@@ -12,8 +12,8 @@ def register_user(data):
     password = data.get('password')
     phone = data.get('phone')
     email = data.get('email')
-    code = data.get('sms_code')
-
+    code = data.get('code')
+    print(data)
     # ✅ 检查必填字段
     if not all([username, password, phone, email, code]):
         return error_response('用户名、密码、手机号、邮箱和验证码均为必填')
@@ -27,8 +27,8 @@ def register_user(data):
         return error_response('该邮箱已注册')
 
     # ✅ 验证码有效性
-    # if not verify_sms_code_from_redis(phone, code):
-    #     return error_response('验证码错误或已过期')
+    if not verify_sms_code_from_redis(phone, code):
+        return error_response('验证码错误或已过期')
 
     # ✅ 注册用户
     hashed_pw = generate_password_hash(password)
@@ -51,7 +51,8 @@ def register_user(data):
     device_id = request.headers.get('User-Agent')
     bind_logs_to_user(user.id, ip_address=ip, device_id=device_id)
 
-    return success_response({'user_id': user.id}, '注册成功')
+    return success_response({'user_id': user.id, 'username': user.username}, '注册成功')
+
 
 
 def login_user(data):
@@ -73,9 +74,14 @@ def login_user(data):
         'username': user.username
     }, message='登录成功')
 def send_sms_code(data):
+
     phone = data.get('phone')
     if not phone:
         return error_response('手机号不能为空')
+        # ✅ 检查手机号是否已注册
+    existing_user = User.query.filter_by(phone=phone).first()
+    if existing_user:
+        return error_response('该手机号已注册，请直接登录')
 
     code = str(random.randint(100000, 999999))
     save_sms_code_to_redis(phone, code)
